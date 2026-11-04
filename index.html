@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz học tập · Ôn tập kiến thức</title>
+<style>
+  :root{
+    --bg:#f2f5fb;
+    --card:#ffffff;
+    --text:#16203a;
+    --muted:#6b7794;
+    --border:#e3e8f2;
+    --opt-bg:#ffffff;
+    --primary:#5b8cff;
+    --primary-2:#7c4dff;
+    --ok:#16a34a;
+    --ok-bg:#e8f8ee;
+    --bad:#e5484d;
+    --bad-bg:#fdecec;
+    --hint:#b8860b;
+    --hint-bg:#fff8e1;
+    --shadow:0 10px 30px rgba(28,45,90,.08);
+    --shadow-sm:0 4px 14px rgba(28,45,90,.06);
+  }
+  [data-theme="dark"]{
+    --bg:#0e1320;
+    --card:#161c2c;
+    --text:#e8edf8;
+    --muted:#94a1bd;
+    --border:#26304a;
+    --opt-bg:#1b2334;
+    --primary:#6f9bff;
+    --primary-2:#a07cff;
+    --ok:#3ddc84;
+    --ok-bg:#12281c;
+    --bad:#ff6b6b;
+    --bad-bg:#2a1518;
+    --hint:#ffd166;
+    --hint-bg:#2a2415;
+    --shadow:0 10px 30px rgba(0,0,0,.45);
+    --shadow-sm:0 4px 14px rgba(0,0,0,.35);
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    padding:22px 16px 70px;
+    font-family:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    transition:background .3s ease,color .3s ease;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:"";
+    position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background:
+      radial-gradient(620px 420px at 8% -8%, rgba(91,140,255,.28), transparent 62%),
+      radial-gradient(620px 420px at 102% 2%, rgba(124,77,255,.22), transparent 62%);
+  }
+
+  .app{max-width:880px;margin:0 auto}
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:16px;margin-bottom:22px;padding:15px 18px;
+    background:color-mix(in srgb,var(--card) 78%,transparent);
+    border:1px solid color-mix(in srgb,var(--border) 82%,transparent);
+    border-radius:20px;box-shadow:var(--shadow-sm);
+    backdrop-filter:blur(14px);
+  }
+  .brand{display:flex;align-items:center;gap:13px}
+  .brand-copy{display:flex;flex-direction:column;gap:3px}
+  .eyebrow{font-size:.66rem;font-weight:800;letter-spacing:1.35px;color:var(--primary);text-transform:uppercase}
+  .brand p{margin:0;font-size:.8rem;color:var(--muted);font-weight:500}
+  .brand h1{
+    margin:0;font-size:1.22rem;letter-spacing:-.4px;font-weight:800;
+    background:linear-gradient(100deg,var(--primary),var(--primary-2));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .logo{width:48px;height:48px;flex:0 0 48px;filter:drop-shadow(0 6px 14px rgba(91,140,255,.35))}
+
+  .theme-btn{
+    width:46px;height:46px;border-radius:14px;border:1px solid var(--border);
+    background:var(--card);color:var(--text);cursor:pointer;
+    display:grid;place-items:center;box-shadow:var(--shadow-sm);
+    transition:transform .18s ease,border-color .18s ease,background .3s;
+  }
+  .theme-btn:hover{transform:translateY(-2px) rotate(-6deg);border-color:var(--primary)}
+  .theme-btn svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+  [data-theme="light"] .i-sun{display:none}
+  [data-theme="dark"]  .i-moon{display:none}
+
+  /* ---------- Stats ---------- */
+  .stats{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;
+  }
+  .stat{
+    background:color-mix(in srgb,var(--card) 92%,var(--primary) 8%);
+    border:1px solid var(--border);border-radius:17px;
+    padding:13px 16px;display:flex;align-items:center;gap:11px;
+    box-shadow:var(--shadow-sm);transition:background .3s,border-color .3s,transform .2s;
+  }
+  .stat:hover{transform:translateY(-2px)}
+  .stat .dot{width:9px;height:9px;border-radius:50%;flex:0 0 9px}
+  .stat.ok .dot{background:var(--ok);box-shadow:0 0 0 4px color-mix(in srgb,var(--ok) 18%,transparent)}
+  .stat.bad .dot{background:var(--bad);box-shadow:0 0 0 4px color-mix(in srgb,var(--bad) 18%,transparent)}
+  .stat.idx .dot{background:var(--primary);box-shadow:0 0 0 4px color-mix(in srgb,var(--primary) 18%,transparent)}
+  .stat b{display:block;font-size:1.05rem;line-height:1.1}
+  .stat small{color:var(--muted);font-size:.72rem;font-weight:600;letter-spacing:.3px}
+
+  .progress{
+    height:9px;border-radius:99px;background:var(--border);overflow:hidden;margin-bottom:22px;
+    box-shadow:inset 0 1px 2px rgba(20,30,60,.08);
+  }
+  .progress .bar{
+    height:100%;width:0;border-radius:99px;
+    background:linear-gradient(90deg,var(--primary),var(--primary-2));
+    transition:width .45s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* ---------- Card ---------- */
+  .card{
+    position:relative;overflow:hidden;
+    background:var(--card);border:1px solid var(--border);border-radius:24px;
+    padding:30px 30px 25px;box-shadow:var(--shadow);
+    transition:background .3s,border-color .3s;
+    animation:pop .34s cubic-bezier(.2,.8,.3,1);
+  }
+  .card::before{
+    content:"";position:absolute;top:0;left:30px;right:30px;height:3px;
+    border-radius:0 0 8px 8px;background:linear-gradient(90deg,var(--primary),var(--primary-2));
+  }
+  @keyframes pop{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+  .qtext{
+    margin:0 0 18px;font-size:1.12rem;line-height:1.55;font-weight:700;letter-spacing:-.2px;
+  }
+
+  .options{display:flex;flex-direction:column;gap:11px}
+  .option{
+    display:flex;align-items:flex-start;gap:13px;width:100%;text-align:left;
+    padding:14px 16px;border-radius:15px;cursor:pointer;
+    font:inherit;font-size:.96rem;line-height:1.5;color:var(--text);
+    background:var(--opt-bg);border:1.6px solid var(--border);
+    transition:border-color .16s,transform .16s,box-shadow .16s,background .25s,color .25s;
+  }
+  .option:hover:not(:disabled){
+    border-color:var(--primary);transform:translateY(-2px);
+    box-shadow:0 8px 20px color-mix(in srgb,var(--primary) 22%,transparent);
+  }
+  :where(button):focus-visible{outline:3px solid color-mix(in srgb,var(--primary) 70%,white);outline-offset:3px}
+  .option:disabled{cursor:default}
+  .badge{
+    flex:0 0 27px;width:27px;height:27px;border-radius:9px;display:grid;place-items:center;
+    font-size:.8rem;font-weight:800;color:var(--muted);
+    background:color-mix(in srgb,var(--muted) 13%,transparent);
+    transition:background .2s,color .2s;
+  }
+  .option.correct{border-color:var(--ok);background:var(--ok-bg)}
+  .option.correct .badge{background:var(--ok);color:#fff}
+  .option.wrong{border-color:var(--bad);background:var(--bad-bg)}
+  .option.wrong .badge{background:var(--bad);color:#fff}
+  .option.dim{opacity:.55}
+
+  /* ---------- Hint ---------- */
+  .hint-wrap{margin-top:16px}
+  .hint-btn{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:9px 16px;border-radius:12px;cursor:pointer;
+    font:inherit;font-size:.86rem;font-weight:700;letter-spacing:.2px;
+    color:var(--hint);background:var(--hint-bg);
+    border:1.4px dashed color-mix(in srgb,var(--hint) 55%,transparent);
+    transition:transform .16s,box-shadow .16s,opacity .2s;
+  }
+  .hint-btn:hover{transform:translateY(-1px);box-shadow:0 6px 16px color-mix(in srgb,var(--hint) 25%,transparent)}
+  .hint-btn .bulb{font-size:1rem;line-height:1}
+  .hint-content{
+    margin-top:10px;padding:13px 16px;border-radius:13px;
+    font-size:.9rem;line-height:1.55;font-weight:500;
+    color:var(--text);background:var(--hint-bg);
+    border:1px solid color-mix(in srgb,var(--hint) 40%,transparent);
+    animation:pop .28s ease;
+  }
+  .hint-content strong{color:var(--hint)}
+  [hidden]{display:none !important}
+
+  /* ---------- Feedback ---------- */
+  .feedback{
+    margin-top:16px;padding:13px 16px;border-radius:14px;font-size:.9rem;
+    font-weight:600;display:none;animation:pop .28s ease;
+  }
+  .feedback.show{display:block}
+  .feedback.ok{background:var(--ok-bg);color:var(--ok);border:1px solid color-mix(in srgb,var(--ok) 35%,transparent)}
+  .feedback.bad{background:var(--bad-bg);color:var(--bad);border:1px solid color-mix(in srgb,var(--bad) 35%,transparent)}
+
+  /* ---------- Buttons ---------- */
+  .actions{display:flex;justify-content:flex-end;margin-top:18px}
+  .btn{
+    border:none;cursor:pointer;font:inherit;font-weight:700;font-size:.94rem;
+    padding:13px 26px;border-radius:14px;color:#fff;
+    background:linear-gradient(100deg,var(--primary),var(--primary-2));
+    box-shadow:0 10px 22px color-mix(in srgb,var(--primary) 38%,transparent);
+    transition:transform .16s,box-shadow .16s,opacity .2s;
+  }
+  .btn:hover{transform:translateY(-2px);box-shadow:0 14px 28px color-mix(in srgb,var(--primary) 46%,transparent)}
+  .btn:active{transform:translateY(0)}
+  .btn[hidden]{display:none}
+
+  /* ---------- Result ---------- */
+  .result{text-align:center;padding:8px 0 4px;animation:pop .4s ease}
+  .ring{
+    width:170px;height:170px;border-radius:50%;margin:6px auto 20px;
+    display:grid;place-items:center;
+    background:conic-gradient(var(--ok) calc(var(--p) * 1%), var(--border) 0);
+    transition:background .6s ease;
+  }
+  .ring-in{
+    width:132px;height:132px;border-radius:50%;background:var(--card);
+    display:grid;place-items:center;align-content:center;gap:2px;
+    box-shadow:inset 0 0 0 1px var(--border);
+  }
+  .ring-in b{font-size:2rem;line-height:1;letter-spacing:-1px}
+  .ring-in small{font-size:.72rem;color:var(--muted);font-weight:700;letter-spacing:.6px}
+  .result h2{margin:0 0 8px;font-size:1.35rem;letter-spacing:-.4px}
+  .result p{margin:0 0 20px;color:var(--muted);font-size:.94rem}
+  .result .pills{display:flex;justify-content:center;gap:10px;margin-bottom:24px;flex-wrap:wrap}
+  .pill{
+    padding:9px 16px;border-radius:12px;font-size:.85rem;font-weight:700;
+    border:1px solid var(--border);background:var(--opt-bg);
+  }
+  .pill.ok{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 40%,transparent)}
+  .pill.bad{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 40%,transparent)}
+
+  @media (max-width:560px){
+    body{padding:12px 12px 42px}
+    .topbar{padding:12px 13px;border-radius:17px;margin-bottom:16px}
+    .card{padding:23px 17px 18px;border-radius:19px}
+    .card::before{left:18px;right:18px}
+    .qtext{font-size:1.02rem}
+    .option{font-size:.9rem;padding:12px 13px}
+    .stat{padding:9px 10px;gap:8px}
+    .stat b{font-size:.95rem}
+    .stat small{font-size:.66rem}
+    .brand h1{font-size:1.02rem}
+    .logo{width:42px;height:42px;flex-basis:42px}
+    .theme-btn{width:42px;height:42px}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ===== Header ===== -->
+  <header class="topbar">
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 48 48" aria-hidden="true">
+        <defs>
+          <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#5b8cff"/>
+            <stop offset="1" stop-color="#7c4dff"/>
+          </linearGradient>
+        </defs>
+        <rect width="48" height="48" rx="14" fill="url(#lg)"/>
+        <path d="M24 17c-4.2-3.3-9-3.2-13-.8v17c4-2.4 8.8-2.5 13 .8 4.2-3.3 9-3.2 13-.8v-17c-4-2.4-8.8-2.5-13 .8Z"
+              fill="none" stroke="#fff" stroke-width="2.3" stroke-linejoin="round"/>
+        <path d="M24 17v17" stroke="#fff" stroke-width="2.3" stroke-linecap="round"/>
+        <path d="M15.5 21.5c2-.7 4.2-.5 6 .3M32.5 21.5c-2-.7-4.2-.5-6 .3"
+              fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <span class="eyebrow">Không gian học tập</span>
+        <h1>Quiz học tập</h1>
+        <p>Ôn tập kiến thức Sinh Học · 33 câu hỏi</p>
+      </div>
+    </div>
+
+    <button class="theme-btn" id="themeBtn" title="Chuyển chế độ sáng / tối" aria-label="Đổi giao diện">
+      <svg class="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <svg class="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
+  </header>
+
+  <!-- ===== Status bar ===== -->
+  <section class="stats">
+    <div class="stat ok"><span class="dot"></span><div><b id="sCorrect">0</b><small>ĐÚNG</small></div></div>
+    <div class="stat bad"><span class="dot"></span><div><b id="sWrong">0</b><small>SAI</small></div></div>
+    <div class="stat idx"><span class="dot"></span><div><b id="sIndex">1/33</b><small>CÂU HỎI</small></div></div>
+  </section>
+  <div class="progress"><div class="bar" id="bar"></div></div>
+
+  <!-- ===== Quiz card ===== -->
+  <main class="card" id="card"></main>
+</div>
+
+<script>
+/* =========================================================
+   DỮ LIỆU CÂU HỎI  (c: chỉ số đáp án đúng trong mảng gốc,
+                     hint: gợi ý hiển thị khi bấm nút)
+   ========================================================= */
+const QUESTIONS = [
+  {
+    "q": "Câu 11: Ở thời điểm vận tốc của vật dao động điều hoà bằng 20% vận tốc cực đại, tỷ số giữa động năng và thế năng của vật là",
+    "a": ["24", "5", "1/5", "1/24"],
+    "c": 3,
+    "hint": "v/vmax = 0,2 ⇒ Wđ/W = 0,04; Wt/W = 0,96; Wđ/Wt = 1/24."
+  },
+  {
+    "q": "Câu 12: Tại một điểm có hai con lắc đơn cùng dao động. Chu kì dao động của chúng lần lượt là 2 s và 1 s. Biết m1 = 2m2 và hai con lắc dao động với cùng biên độ α0. Tỉ lệ năng lượng của con lắc thứ nhất với năng lượng của con lắc thứ hai bằng",
+    "a": ["0,5", "0,25", "4", "8"],
+    "c": 3,
+    "hint": "E ∝ mT²α0²; E1/E2 = (m1/m2)(T1/T2)² = 2.4 = 8."
+  },
+  {
+    "q": "Câu 13: Một con lắc dao động tắt dần trong môi trường với lực ma sát rất nhỏ. Cứ sau mỗi chu kì, phần năng lượng của con lắc bị mất đi 8%. Trong một dao động toàn phần biên độ giảm đi",
+    "a": ["2√2%", "4%", "6%", "1,6%"],
+    "c": 1,
+    "hint": "W ∝ A²; A'² = 0,92A² ⇒ A'/A = √0,92 ≈ 0,959 ⇒ giảm khoảng 4%."
+  },
+  {
+    "q": "Câu 16: Một con lắc lò xo dao động điều hoà với chu kỳ 5 s. Kích thích dao động bằng cách kéo vật nặng ra khỏi VTCB một đoạn x = √2/2 cm, truyền cho nó tốc độ v = π√2/5 cm/s theo chiều âm rồi thả cho dao động. Chọn gốc thời gian lúc thả. Phương trình dao động của con lắc lò xo là",
+    "a": [
+      "x = √2 cos(2π/5 t − π/2) cm",
+      "x = √2 cos(2π/5 t + π/2) cm",
+      "x = cos(2π/5 t − π/4) cm",
+      "x = cos(2π/5 t + π/4) cm"
+    ],
+    "c": 3,
+    "hint": "ω = 2π/5; A² = x² + v²/ω² = 1 ⇒ A = 1; x(0) = √2/2, v < 0 ⇒ φ = π/4."
+  },
+  {
+    "q": "Câu 17: Cho một con lắc lò xo có độ cứng k đặt theo phương ngang không ma sát. Khi vật nhỏ có khối lượng m1 thì con lắc dao động điều hòa với chu kỳ 6 s. Khi vật nhỏ có khối lượng m2 thì con lắc dao động điều hòa với chu kỳ 8 s. Nếu vật nhỏ có khối lượng m1 + m2 thì con lắc dao động điều hòa với chu kỳ",
+    "a": ["3 s", "10 s", "9 s", "1 s"],
+    "c": 1,
+    "hint": "T = 2π√(m/k); T² = T1² + T2² = 6² + 8² = 100 ⇒ T = 10 s."
+  },
+  {
+    "q": "Câu 18: Một con lắc lò xo đang dao động tắt dần, cơ năng ban đầu của nó là 5 J. Sau ba chu kì kể từ lúc bắt đầu dao động thì biên độ của nó giảm đi 18%. Phần cơ năng của con lắc chuyển hoá thành nhiệt năng tính trung bình trong mỗi chu kì dao động của nó là",
+    "a": ["0,365 J", "0,546 J", "0,600 J", "0,445 J"],
+    "c": 1,
+    "hint": "A3 = 0,82A0; E3 = 0,82²E0; mất trong 3 chu kì là E0(1 − 0,82²); chia 3 ≈ 0,546 J."
+  },
+  {
+    "q": "Câu 1: Cho phương trình dao động điều hòa x = Acos(ωt + φ). Với ω, φ > 0. Giá trị lớn nhất của li độ là",
+    "a": ["Aω", "−A", "A", "ωt + φ"],
+    "c": 2,
+    "hint": "Li độ cực đại là biên độ A."
+  },
+  {
+    "q": "Câu 2: Phương trình dao động của một vật dao động điều hòa là x = −5cos(10πt + π/6) cm. Kết luận nào sau đây là đúng?",
+    "a": [
+      "Biên độ là −5 cm.",
+      "Pha ban đầu là −5π/6 rad.",
+      "Chu kì là 0,4 s.",
+      "Li độ ban đầu là 5 cm."
+    ],
+    "c": 1,
+    "hint": "Viết lại x = 5cos(10πt + 7π/6); pha 7π/6 ≡ −5π/6. T = 0,2 s; x(0) ≠ 5 cm."
+  },
+  {
+    "q": "Câu 3: Khi nói về một vật đang dao động điều hòa, phát biểu nào sau đây đúng?",
+    "a": [
+      "Vector gia tốc đổi chiều khi vật có li độ cực đại.",
+      "Vector vận tốc và vector gia tốc của vật cùng chiều khi vật chuyển động về vị trí cân bằng.",
+      "Vector vận tốc và vector gia tốc của vật luôn hướng ra xa vị trí cân bằng.",
+      "Vector vận tốc và vector gia tốc của vật cùng chiều khi vật chuyển động ra xa vị trí cân bằng."
+    ],
+    "c": 1,
+    "hint": "Khi về VTCB: v hướng về O, a hướng về O nên cùng chiều."
+  },
+  {
+    "q": "Câu 4: Một vật dao động điều hòa theo một trục cố định (mốc thế năng ở vị trí cân bằng) thì",
+    "a": [
+      "khi vật đi từ vị trí cân bằng ra biên, vận tốc và gia tốc của vật luôn cùng dấu.",
+      "thế năng của vật cực đại khi vật ở vị trí biên.",
+      "động năng của vật cực đại khi gia tốc của vật có độ lớn cực đại.",
+      "khi ở vị trí cân bằng, thế năng của vật bằng cơ năng."
+    ],
+    "c": 1,
+    "hint": "Thế năng Wt = 1/2kx² cực đại ở biên."
+  },
+  {
+    "q": "Câu 5: Một con lắc đơn có chiều dài dây treo l, quả nặng có khối lượng m, dao động điều hòa với biên độ góc α0 tại nơi có gia tốc trọng trường g. Chu kì dao động của con lắc không phụ thuộc vào",
+    "a": ["l, m, α0", "g, α0", "l, g", "m, α0"],
+    "c": 3,
+    "hint": "T = 2π√(l/g) không phụ thuộc m và α0 (góc nhỏ)."
+  },
+  {
+    "q": "Câu 6: Dao động tắt dần",
+    "a": [
+      "có biên độ không thay đổi theo thời gian.",
+      "luôn có hại.",
+      "luôn có lợi.",
+      "có biên độ giảm dần theo thời gian."
+    ],
+    "c": 3,
+    "hint": "Định nghĩa dao động tắt dần: biên độ giảm dần theo thời gian."
+  },
+  {
+    "q": "Câu 7: Một vật dao động điều hòa trên trục Ox quanh vị trí cân bằng O. Khi nói về gia tốc của vật, phát biểu nào sau đây sai?",
+    "a": [
+      "Gia tốc có độ lớn tỉ lệ với độ lớn li độ của vật.",
+      "Vector gia tốc luôn cùng hướng với vector vận tốc.",
+      "Vector gia tốc luôn hướng về vị trí cân bằng.",
+      "Gia tốc luôn ngược dấu với li độ của vật."
+    ],
+    "c": 1,
+    "hint": "a = −ω²x nên a ngược dấu x, hướng về VTCB; không luôn cùng hướng vận tốc."
+  },
+  {
+    "q": "Câu 8: Một lò xo có một đầu cố định, còn đầu kia chịu một lực kéo bằng 5 N thì nó dãn 8 cm. Độ cứng của lò xo là",
+    "a": ["1,5 N/m", "120 N/m", "62,5 N/m", "15 N/m"],
+    "c": 2,
+    "hint": "k = F/Δl = 5/0,08 = 62,5 N/m."
+  },
+  {
+    "q": "Câu 9: Một con lắc lò xo có khối lượng vật nhỏ là m1 = 300 g dao động điều hòa với chu kì 1 s. Nếu thay vật nhỏ có khối lượng m1 bằng vật có khối lượng m2 thì con lắc dao động với chu kì 0,5 s. Giá trị m2 bằng",
+    "a": ["150 g", "25 g", "100 g", "75 g"],
+    "c": 3,
+    "hint": "T ∝ √m ⇒ m2 = m1(T2/T1)² = 300.0,25 = 75 g."
+  },
+  {
+    "q": "Câu 10: Một chất điểm dao động điều hòa với chu kì 1,25 s và biên độ 5 cm. Tốc độ lớn nhất của chất điểm là",
+    "a": ["25 cm/s", "2,5 cm/s", "63 cm/s", "6,3 cm/s"],
+    "c": 0,
+    "hint": "vmax = ωA = (2π/T)A ≈ 25 cm/s."
+  },
+  {
+    "q": "Câu 10: Một con lắc đơn có chiều dài 121 cm, dao động điều hòa tại nơi có gia tốc trọng trường là 10 m/s². Lấy π² = 10. Chu kì dao động của con lắc là",
+    "a": ["0,5 s", "2 s", "1 s", "2,2 s"],
+    "c": 3,
+    "hint": "T = 2π√(l/g) = 2π√(1,21/10) ≈ 2,2 s."
+  },
+  {
+    "q": "Câu 11: Một sợi dây không đàn hồi gắn với một quả nặng có khối lượng m dao động với góc nhỏ. Nếu tăng khối lượng quả nặng lên gấp bốn lần thì chu kì của hệ thay đổi như thế nào? Biết ma sát không đáng kể.",
+    "a": ["Tăng 2 lần.", "Tăng 4 lần.", "Giảm 2 lần.", "Không đổi."],
+    "c": 3,
+    "hint": "Chu kì con lắc đơn không phụ thuộc khối lượng."
+  },
+  {
+    "q": "Câu 12: Một con lắc đơn có độ dài 150 cm. Người ta thay đổi độ dài của nó sao cho chu kỳ dao động mới chỉ bằng 80% chu kỳ dao động ban đầu. Độ dài lúc sau của con lắc đơn là",
+    "a": ["106 cm", "96 cm", "134 cm", "120 cm"],
+    "c": 1,
+    "hint": "T ∝ √l; T' = 0,8T ⇒ l' = 0,8²l = 0,64.150 = 96 cm."
+  },
+  {
+    "q": "Câu 13: Một vật dao động điều hòa được mô tả bởi phương trình x = 2cos(πt + π/4) cm. Pha dao động của vật tại thời điểm 2 s là",
+    "a": ["0 rad", "9π/4 rad", "π/4 rad", "2π rad"],
+    "c": 1,
+    "hint": "Pha = πt + π/4; tại t = 2 ⇒ 2π + π/4 = 9π/4."
+  },
+  {
+    "q": "Câu 14: Một vật dao động điều hòa theo phương trình x = 4cos(π/2 t + π/4) cm. Tại thời điểm 1 s, vật đang ở vị trí cách biên âm một khoảng",
+    "a": ["4 cm", "0 cm", "4 − 2√2 cm", "2√2 cm"],
+    "c": 2,
+    "hint": "t = 1: x = 4cos(3π/4) = −2√2; cách biên âm −4 là 4 − 2√2 cm."
+  },
+  {
+    "q": "Câu 15: Một nhà khoa học thực hiện đo gia tốc trọng trường tại một nơi trên Trái Đất bằng con lắc đơn. Dùng thước đo chiều dài của dây treo có kết quả l = 1,15 ± 0,01 m. Dùng đồng hồ đo 20 chu kì thu được kết quả 20T = 42,92 ± 0,01 s. Lấy π = 3,14 và bỏ qua sai số của π. Kết quả của phép đo gia tốc trọng trường là",
+    "a": [
+      "g = 9,85 ± 0,09 m/s²",
+      "g = 9,84 ± 0,08 m/s²",
+      "g = 9,86 ± 0,10 m/s²",
+      "g = 9,86 ± 0,07 m/s²"
+    ],
+    "c": 0,
+    "hint": "T = 42,92/20; g = 4π²l/T² ≈ 9,85; sai số Δg/g = Δl/l + 2ΔT/T ≈ 0,0092 ⇒ ±0,09."
+  },
+  {
+    "q": "Câu 16: Một con lắc lò xo treo thẳng đứng dao động điều hòa với biên độ 4 cm. Khi cân bằng, lò xo dãn một đoạn 2 cm. Trong một chu kì T, thời gian mà lò xo nén là nT. Giá trị của n là",
+    "a": ["1/2", "1/3", "1/6", "1/4"],
+    "c": 1,
+    "hint": "Nén khi x < −Δl0 = −2 cm; với A = 4 cm, cosθ < −1/2 chiếm 1/3 chu kì."
+  },
+  {
+    "q": "Câu 17: Một chất điểm có khối lượng 0,5 kg, dao động tắt dần với chu kì không đổi là 0,2 s. Biết rằng sau n chu kì dao động thì biên độ dao động của con lắc là An = (1 − 0,15)^n A0, với A0 = 2 cm là biên độ ban đầu. Sau 3 chu kì dao động đầu tiên, ma sát đã làm cho cơ năng của con lắc giảm đi một lượng là bao nhiêu?",
+    "a": ["0,051 J", "0,265 J", "0,066 J", "0,061 J"],
+    "c": 3,
+    "hint": "A3 = 0,85³A0; cơ năng giảm = E0[1 − (0,85³)²] ≈ 0,061 J."
+  },
+  {
+    "q": "Câu 18: Một vật dao động điều hòa với phương trình x = 10cos(5πt + π/2) cm. Vật qua vị trí x = −5√2 cm theo chiều dương lần thứ 2025 tại thời điểm",
+    "a": ["8097/20 s", "3239/4 s", "14049/2 s", "16195/8 s"],
+    "c": 1,
+    "hint": "x = −10sin(5πt); cần sin = √2/2, v > 0 ⇒ 5πt = 3π/4 + 2kπ; lần 2025: k = 2024 ⇒ t = 3239/4 s."
+  },
+  {
+    "q": "Câu 1: Một ví dụ của dao động điều hòa là",
+    "a": [
+      "Dao động của con lắc lò xo trên mặt bàn không có ma sát.",
+      "Dao động của chiếc lá trên cành.",
+      "Dao động có biên độ thay đổi liên tục.",
+      "Dao động có tần số không xác định."
+    ],
+    "c": 0,
+    "hint": "Con lắc lò xo không ma sát là ví dụ điển hình của dao động điều hòa."
+  },
+  {
+    "q": "Câu 2: Theo định luật Hooke về lực đàn hồi lò xo và con lắc lò xo, phát biểu nào sau đây sai?",
+    "a": [
+      "Lực đàn hồi phụ thuộc vào độ cứng của lò xo.",
+      "Lực đàn hồi phụ thuộc vào khối lượng của vật nặng.",
+      "Gia tốc của vật phụ thuộc vào khối lượng của vật.",
+      "Gia tốc của vật phụ thuộc độ lớn lực đàn hồi tác dụng lên vật."
+    ],
+    "c": 1,
+    "hint": "Fđh = kΔl không phụ thuộc khối lượng vật nặng."
+  },
+  {
+    "q": "Câu 3: Trong dao động của con lắc lò xo nằm ngang, phát biểu nào sau đây sai?",
+    "a": [
+      "Chu kỳ của con lắc chỉ phụ thuộc độ cứng của lò xo và khối lượng của vật nặng.",
+      "Khi thế năng của quả cầu lớn nhất thì lực đàn hồi của lò xo có độ lớn nhỏ nhất.",
+      "Tần số của con lắc không phụ thuộc biên độ dao động.",
+      "Khi quả cầu cân bằng thì lò xo có chiều dài bằng chiều dài tự nhiên của nó."
+    ],
+    "c": 1,
+    "hint": "Ở biên thế năng lớn nhất và lực đàn hồi cũng lớn nhất (lò xo nằm ngang)."
+  },
+  {
+    "q": "Câu 4: Đồ thị biểu diễn mối quan hệ giữa gia tốc và li độ của vật dao động điều hòa là",
+    "a": ["đường hình sin.", "đường hình cos.", "đoạn thẳng dốc lên.", "đoạn thẳng dốc xuống."],
+    "c": 3,
+    "hint": "a = −ω²x là đường thẳng qua gốc, hệ số góc âm."
+  },
+  {
+    "q": "Câu 5: Khi chỉ thay đổi khối lượng vật nặng của con lắc đơn, tần số dao động điều hoà của nó sẽ",
+    "a": ["giảm.", "tăng.", "không thay đổi.", "không đủ dữ kiện để xác định."],
+    "c": 2,
+    "hint": "Tần số con lắc đơn không phụ thuộc khối lượng."
+  },
+  {
+    "q": "Câu 6: Pha ban đầu cho phép xác định",
+    "a": [
+      "trạng thái của dao động ở thời điểm ban đầu.",
+      "vận tốc của dao động ở thời điểm bất kỳ.",
+      "li độ của dao động ở thời điểm bất kỳ.",
+      "gia tốc của dao động ở thời điểm bất kỳ."
+    ],
+    "c": 0,
+    "hint": "Pha ban đầu φ xác định trạng thái (x, v) tại t = 0."
+  },
+  {
+    "q": "Câu 7: Nhận định nào sau đây không đúng khi nói về dao động cơ học tắt dần?",
+    "a": [
+      "Dao động tắt dần có động năng giảm dần còn thế năng biến thiên điều hòa.",
+      "Dao động tắt dần là dao động có biên độ giảm dần theo thời gian.",
+      "Lực ma sát càng lớn thì dao động tắt càng nhanh.",
+      "Trong dao động tắt dần, cơ năng giảm dần theo thời gian."
+    ],
+    "c": 0,
+    "hint": "Trong tắt dần, cơ năng giảm; động năng và thế năng không biến thiên điều hòa đơn giản như mô tả A."
+  },
+  {
+    "q": "Câu 8: Khi xảy ra hiện tượng cộng hưởng cơ học, vật dao động cưỡng bức sẽ tiếp tục dao động với",
+    "a": [
+      "biên độ ngoại lực cưỡng bức.",
+      "biên độ dao động riêng.",
+      "tần số dao động riêng.",
+      "cả biên độ và tần số dao động riêng."
+    ],
+    "c": 2,
+    "hint": "Cộng hưởng khi f cưỡng bức = f riêng; hệ dao động với tần số riêng (bằng tần số ngoại lực)."
+  },
+  {
+    "q": "Câu 9: Một con lắc đồng hồ đang dao động tắt dần, mỗi chu kỳ năng lượng bị mất đi do ma sát là 0,01 J. Để duy trì dao động của con lắc đồng hồ, ta cần cung cấp cho con lắc một năng lượng",
+    "a": [
+      "lớn hơn 0,01 J trong mỗi chu kỳ.",
+      "lớn hơn 0,01 J trong mỗi nửa chu kỳ.",
+      "vừa bằng 0,01 J trong mỗi chu kỳ.",
+      "lớn hơn 0,01 J trong mỗi nửa chu kỳ."
+    ],
+    "c": 2,
+    "hint": "Duy trì: cung cấp đúng phần năng lượng mất mỗi chu kì."
+  },
+  {
+    "q": "Câu bị cắt: Dao động của một vật là dao động cưỡng bức dưới tác dụng của ngoại lực f = F0cos(20πt), F0 không đổi. Chu kì dao động của vật là",
+    "a": ["0,2 s", "0,1 s", "2,1 s", "1,5 s"],
+    "c": 1,
+    "hint": "T = 2π/ω = 2π/(20π) = 0,1 s."
+  },
+  {
+    "q": "Câu 40: Một chất điểm dao động điều hoà theo phương trình x = 2cos(2πt) (x tính bằng cm; t tính bằng s). Tại thời điểm t = 1/3 s chất điểm có vận tốc bằng",
+    "a": ["−2π cm/s", "2π cm/s", "2π√3 cm/s", "−2π√3 cm/s"],
+    "c": 3,
+    "hint": "v = −4π sin(2πt); t = 1/3 ⇒ v = −4π.√3/2 = −2π√3 cm/s."
+  },
+  {
+    "q": "Câu 41: Một con lắc đơn dài l = 2,0 m dao động tại một nơi có g = 9,8 m/s². Hỏi nó thực hiện được bao nhiêu dao động toàn phần trong 5,0 phút?",
+    "a": ["2", "22", "234", "106"],
+    "c": 3,
+    "hint": "T = 2π√(2/9,8) ≈ 2,84 s; N = 300/2,84 ≈ 106."
+  },
+  {
+    "q": "Câu 43: Con lắc lò xo gồm lò xo có độ cứng k = 20 N/m và vật nhỏ khối lượng m đang dao động cưỡng bức dưới tác dụng của ngoại lực F = 5cos(10t) N (t tính bằng giây). Biết hệ đang xảy ra hiện tượng cộng hưởng. Giá trị của m là",
+    "a": ["500 g", "125 g", "200 g", "250 g"],
+    "c": 2,
+    "hint": "Cộng hưởng: ω = 10 = √(k/m) ⇒ m = 20/100 = 0,2 kg."
+  },
+  {
+    "q": "Câu 25: Cây cầu Tacoma ở nước Mỹ có thể chịu được nhiều ôtô có tải trọng lớn đi qua nhưng vào ngày 7/11/1940 đã bị sập dưới tác dụng của gió gây chấn động nước Mỹ. Hiện tượng sập cầu Tacoma được giải thích dựa trên",
+    "a": ["dao động cưỡng bức.", "hiện tượng cộng hưởng cơ.", "dao động tắt dần.", "dao động bé."],
+    "c": 1,
+    "hint": "Gió kích thích dao động, tần số gần tần số riêng gây cộng hưởng."
+  },
+  {
+    "q": "Câu 27: Dao động của vật sẽ tắt dần nhanh hơn nếu",
+    "a": [
+      "giảm lực ma sát.",
+      "tăng lực cản của môi trường.",
+      "tăng ngoại lực cưỡng bức tuần hoàn.",
+      "đặt vật dao động trong môi trường chân không."
+    ],
+    "c": 1,
+    "hint": "Lực cản càng lớn, tắt dần càng nhanh."
+  },
+  {
+    "q": "Câu 28: Cộng hưởng cơ xảy ra trong",
+    "a": ["dao động cưỡng bức.", "dao động tự do.", "dao động duy trì.", "dao động tắt dần."],
+    "c": 0,
+    "hint": "Cộng hưởng xảy ra khi hệ dao động cưỡng bức."
+  },
+  {
+    "q": "Câu 29: Một con lắc lò xo đang dao động điều hòa, mốc thế năng được chọn tại vị trí cân bằng của vật nhỏ. Khi gia tốc có độ lớn đang giảm thì đại lượng nào sau đây đang giảm?",
+    "a": ["Động năng.", "Thế năng và cơ năng.", "Động năng và cơ năng.", "Thế năng."],
+    "c": 3,
+    "hint": "|a| giảm khi vật về VTCB ⇒ |x| giảm ⇒ thế năng giảm."
+  },
+  {
+    "q": "Câu 30: Trong dao động điều hòa những đại lượng dao động cùng tần số với tần số li độ là",
+    "a": ["vận tốc, gia tốc và cơ năng.", "vận tốc, động năng.", "vận tốc, gia tốc.", "động năng, thế năng."],
+    "c": 2,
+    "hint": "v và a biến thiên cùng tần số với x; động năng, thế năng có tần số gấp đôi."
+  },
+  {
+    "q": "Câu 31: Một vật dao động điều hoà có quỹ đạo là một đoạn thẳng dài 30 cm. Biên độ dao động của vật bằng",
+    "a": ["30 cm", "7,5 cm", "15 cm", "±15 cm"],
+    "c": 2,
+    "hint": "Quỹ đạo dài L = 2A ⇒ A = 15 cm."
+  },
+  {
+    "q": "Câu 32: Một chất điểm dao động tắt dần có biên độ giảm đi 5% sau mỗi chu kì. Phần năng lượng của chất điểm bị giảm đi trong một dao động là",
+    "a": ["5%", "9,75%", "9,9%", "9,5%"],
+    "c": 1,
+    "hint": "W ∝ A²; giảm = 1 − (0,95)² = 0,0975 = 9,75%."
+  },
+  {
+    "q": "Câu 33: Nếu tăng chiều dài của con lắc đơn lên 4 lần thì chu kì dao động của con lắc sẽ",
+    "a": ["không thay đổi.", "tăng lên 4 lần.", "tăng lên 2 lần.", "giảm đi 2 lần."],
+    "c": 2,
+    "hint": "T ∝ √l; l tăng 4 ⇒ T tăng 2."
+  },
+  {
+    "q": "Câu 34: Một vật nhỏ dao động điều hòa dọc theo trục Ox với biên độ 5 cm, chu kì 2 s. Tại thời điểm t = 0, vật đi qua vị trí cân bằng O theo chiều dương. Phương trình dao động của vật là",
+    "a": [
+      "x = 5cos(2πt − π/2) cm",
+      "x = 5cos(2πt + π/2) cm",
+      "x = 5cos(πt + π/2) cm",
+      "x = 5cos(πt − π/2) cm"
+    ],
+    "c": 3,
+    "hint": "ω = 2π/T = π; t = 0 tại VTCB theo chiều dương ⇒ φ = −π/2."
+  },
+  {
+    "q": "Câu 35: Một con lắc lò xo có độ cứng k = 100 N/m, dao động điều hoà với biên độ A = 10 cm. Động năng cực đại của vật là",
+    "a": ["10 J", "0,5 J", "5000 J", "1000 J"],
+    "c": 1,
+    "hint": "W = 1/2kA² = 0,5.100.0,1² = 0,5 J."
+  },
+  {
+    "q": "Câu 14: Phương trình dao động điều hòa của một chất điểm có dạng x = Acos(ωt + φ). Độ dài quỹ đạo của dao động là",
+    "a": ["A", "A/2", "4A", "2A"],
+    "c": 3,
+    "hint": "Độ dài quỹ đạo = 2A."
+  },
+  {
+    "q": "Câu 15: Vecto vận tốc của một vật dao động điều hòa luôn",
+    "a": ["hướng ra xa vị trí cân bằng.", "cùng hướng chuyển động.", "hướng về vị trí cân bằng.", "ngược hướng chuyển động."],
+    "c": 1,
+    "hint": "Vector vận tốc luôn cùng hướng chuyển động."
+  },
+  {
+    "q": "Câu 16: Con lắc đơn có khối lượng m, dây treo dài 1 m dao động cưỡng bức dưới tác dụng của ngoại lực F = F0cos(2πft + π/2). Lấy g = π² = 10 m/s². Nếu f của ngoại lực thay đổi từ 1 Hz đến 2 Hz thì biên độ dao động của con lắc",
+    "a": ["luôn tăng.", "luôn giảm.", "tăng rồi giảm.", "không thay đổi."],
+    "c": 1,
+    "hint": "f0 ≈ 0,5 Hz; f từ 1 đến 2 Hz đều lớn hơn f0 nên biên độ giảm."
+  },
+  {
+    "q": "Câu 17: Dao động cưỡng bức có",
+    "a": [
+      "tần số nhỏ hơn tần số của lực cưỡng bức.",
+      "biên độ giảm dần theo thời gian.",
+      "biên độ không đổi theo thời gian.",
+      "tần số lớn hơn tần số của lực cưỡng bức."
+    ],
+    "c": 2,
+    "hint": "Dao động cưỡng bức ổn định có biên độ không đổi, tần số bằng tần số ngoại lực."
+  },
+  {
+    "q": "Câu 18: Khi xe chạy qua các đoạn đường có gờ giảm tốc như hình bên thì xe sẽ",
+    "a": ["cộng hưởng.", "dao động cưỡng bức.", "dao động tự do.", "dao động tắt dần."],
+    "c": 1,
+    "hint": "Xe nhận kích thích tuần hoàn từ gờ giảm tốc nên dao động cưỡng bức."
+  },
+  {
+    "q": "Câu 19: Một hệ dao động cưỡng bức dưới tác dụng của một ngoại lực cưỡng bức biến thiên tuần hoàn với tần số f. Tần số dao động của hệ là",
+    "a": ["2f", "√2 f", "f/2", "f"],
+    "c": 3,
+    "hint": "Tần số dao động cưỡng bức bằng tần số ngoại lực."
+  },
+  {
+    "q": "Câu 20: Một hệ dao động cơ đang thực hiện dao động cưỡng bức. Hiện tượng cộng hưởng xảy ra khi",
+    "a": [
+      "tần số của lực cưỡng bức lớn hơn tần số dao động riêng của hệ dao động.",
+      "chu kì của lực cưỡng bức lớn hơn chu kì dao động riêng của hệ dao động.",
+      "tần số của lực cưỡng bức bằng tần số dao động riêng của hệ dao động.",
+      "chu kì của lực cưỡng bức nhỏ hơn chu kì dao động riêng của hệ dao động."
+    ],
+    "c": 2,
+    "hint": "Cộng hưởng khi f cưỡng bức = f riêng."
+  },
+  {
+    "q": "Câu 21: Khi một con lắc lò xo đang dao động tắt dần do tác dụng của lực ma sát thì cơ năng của con lắc chuyển hóa dần dần thành",
+    "a": ["điện năng.", "hóa năng.", "quang năng.", "nhiệt năng."],
+    "c": 3,
+    "hint": "Ma sát làm cơ năng chuyển hóa thành nhiệt."
+  },
+  {
+    "q": "Câu 22: Một chất điểm khối lượng m dao động điều hòa trên trục Ox theo phương trình x = Acos(ωt + φ). Động năng của chất điểm có biểu thức là",
+    "a": [
+      "1/2 mω²A² cos²(ωt + φ)",
+      "1/2 mω²A² sin²(ωt + φ)",
+      "1/2 mω²A cos²(ωt + φ)",
+      "1/2 mω²A² sin(ωt + φ)"
+    ],
+    "c": 1,
+    "hint": "v = −ωA sin(ωt + φ) ⇒ Wđ = 1/2mω²A²sin²(ωt + φ)."
+  },
+  {
+    "q": "Câu 23: Bộ phận giảm xóc trên xe máy là ứng dụng của",
+    "a": ["cộng hưởng.", "dao động tắt dần.", "dao động cưỡng bức.", "dao động tuần hoàn."],
+    "c": 1,
+    "hint": "Giảm xóc dùng dao động tắt dần để nhanh dừng."
+  },
+  {
+    "q": "Câu 2: Chu kì con lắc đơn dao động điều hòa không phụ thuộc vào",
+    "a": ["chiều dài dây treo.", "khối lượng vật nặng.", "gia tốc trọng trường.", "nhiệt độ."],
+    "c": 1,
+    "hint": "T = 2π√(l/g) không phụ thuộc khối lượng."
+  },
+  {
+    "q": "Câu 3: Dao động mà biên độ của vật giảm dần theo thời gian được gọi là dao động",
+    "a": ["cưỡng bức.", "duy trì.", "điều hòa.", "tắt dần."],
+    "c": 3,
+    "hint": "Biên độ giảm dần theo thời gian là dao động tắt dần."
+  },
+  {
+    "q": "Câu 4: Con lắc lò xo dao động điều hòa dọc theo trục lò xo. Biết rằng trong quá trình dao động lò xo có chiều dài cực đại và cực tiểu lần lượt là lmax, lmin. Chiều dài của lò xo khi vật qua vị trí cân bằng là",
+    "a": ["(lmax + lmin)/2", "(lmax − lmin)/2", "lmax + lmin", "lmax − lmin"],
+    "c": 0,
+    "hint": "VTCB là trung điểm của hai biên chiều dài."
+  },
+  {
+    "q": "Câu 5: Một con lắc lò xo có khối lượng vật nhỏ là m dao động điều hòa theo phương ngang với phương trình x = Acosωt. Mốc tính thế năng ở vị trí cân bằng. Cơ năng của con lắc là",
+    "a": ["mωA²", "1/2 mωA²", "mω²A²", "1/2 mω²A²"],
+    "c": 3,
+    "hint": "Cơ năng W = 1/2 mω²A²."
+  },
+  {
+    "q": "Câu 6: Vật dao động điều hòa với li độ x và biên độ A. Gọi Et, Eđ, E lần lượt là thế năng, động năng và cơ năng của vật. Biểu thức nào sau đây đúng?",
+    "a": ["Et/Eđ = (x/A)²", "Eđ/Et = (x/A)²", "Et/E = (x/A)²", "Eđ/E = (x/A)²"],
+    "c": 2,
+    "hint": "Et = 1/2kx², E = 1/2kA² ⇒ Et/E = (x/A)²."
+  },
+  {
+    "q": "Câu 8: Khi vật thực hiện một dao động tương ứng với pha dao động sẽ thay đổi một lượng",
+    "a": ["0 rad", "π/2 rad", "π rad", "2π rad"],
+    "c": 3,
+    "hint": "Một dao động toàn phần tương ứng pha biến thiên 2π."
+  },
+  {
+    "q": "Câu 9: Khi nói về dao động điều hòa của một vật, phát biểu nào sau đây đúng?",
+    "a": [
+      "Khi vật ở vị trí biên, gia tốc của vật bằng không.",
+      "Vector gia tốc của vật luôn hướng về vị trí cân bằng.",
+      "Vector vận tốc của vật luôn hướng về vị trí cân bằng.",
+      "Khi đi qua vị trí cân bằng, vận tốc của vật bằng không."
+    ],
+    "c": 1,
+    "hint": "a = −ω²x luôn hướng về VTCB."
+  },
+  {
+    "q": "Câu 10: Tại một vị trí trên Trái đất, con lắc đơn có chiều dài l1 dao động điều hòa với chu kì T1, con lắc đơn có chiều dài l2 (l2 < l1) dao động điều hòa với chu kì T2. Cũng tại vị trí đó, con lắc đơn có chiều dài l1 − l2 dao động điều hòa với chu kì là",
+    "a": ["√(T1² − T2²)", "T1T2/(T1 − T2)", "T1T2/(T1 + T2)", "√(T1² + T2²)"],
+    "c": 0,
+    "hint": "T² ∝ l ⇒ T² = T1² − T2²."
+  },
+  {
+    "q": "Câu 11: Độ dịch chuyển cực đại của vật tính từ vị trí cân bằng gọi là",
+    "a": ["li độ dao động.", "biên độ dao động.", "tần số góc.", "pha ban đầu."],
+    "c": 1,
+    "hint": "Độ dịch chuyển cực đại từ VTCB là biên độ."
+  },
+  {
+    "q": "Câu 12: Một chất điểm dao động điều hoà với chu kì là 2 s. Tần số của dao động là",
+    "a": ["π Hz", "1/π Hz", "0,5 Hz", "1 rad/s"],
+    "c": 2,
+    "hint": "f = 1/T = 1/2 = 0,5 Hz."
+  }
+];
+
+/* =========================================================
+   TIỆN ÍCH
+   ========================================================= */
+const LETTERS = ["A","B","C","D","E","F"];
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
+
+function shuffle(arr){
+  for(let i = arr.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+/* =========================================================
+   TRẠNG THÁI
+   ========================================================= */
+const card       = document.getElementById("card");
+const bar        = document.getElementById("bar");
+const sCorrect   = document.getElementById("sCorrect");
+const sWrong     = document.getElementById("sWrong");
+const sIndex     = document.getElementById("sIndex");
+
+let quiz = [];
+let idx = 0;
+let correct = 0;
+let wrong = 0;
+let answered = false;
+
+/* =========================================================
+   KHỞI TẠO
+   ========================================================= */
+function buildQuiz(){
+  return shuffle(QUESTIONS.map(item => {
+    const opts = item.a.map((text, i) => ({ text, isCorrect: i === item.c }));
+    shuffle(opts);
+    return { question: item.q, opts, hint: item.hint };
+  }));
+}
+
+function start(){
+  quiz = buildQuiz();
+  idx = 0; correct = 0; wrong = 0; answered = false;
+  updateStats();
+  renderQuestion();
+}
+
+/* =========================================================
+   THANH TRẠNG THÁI
+   ========================================================= */
+function updateStats(){
+  sCorrect.textContent = correct;
+  sWrong.textContent   = wrong;
+  sIndex.textContent   = Math.min(idx + 1, quiz.length) + "/" + quiz.length;
+  bar.style.width = ((correct + wrong) / quiz.length * 100) + "%";
+}
+
+/* =========================================================
+   HIỂN THỊ CÂU HỎI
+   ========================================================= */
+function renderQuestion(){
+  answered = false;
+  const q = quiz[idx];
+
+  card.innerHTML = `
+    <h2 class="qtext">${esc(q.question)}</h2>
+    <div class="options" id="options">
+      ${q.opts.map((o, i) => `
+        <button class="option" data-i="${i}">
+          <span class="badge">${LETTERS[i]}</span>
+          <span>${esc(o.text)}</span>
+        </button>`).join("")}
+    </div>
+
+    <div class="hint-wrap">
+      <button class="hint-btn" id="hintBtn" type="button">
+        <span class="bulb">💡</span> Xem gợi ý
+      </button>
+      <div class="hint-content" id="hintContent" hidden>
+        <strong>Gợi ý:</strong> ${esc(q.hint)}
+      </div>
+    </div>
+
+    <div class="feedback" id="feedback"></div>
+    <div class="actions">
+      <button class="btn" id="nextBtn" hidden>
+        ${idx === quiz.length - 1 ? "Xem kết quả 🎉" : "Câu tiếp theo →"}
+      </button>
+    </div>
+  `;
+
+  card.querySelectorAll(".option").forEach(btn => {
+    btn.addEventListener("click", () => choose(parseInt(btn.dataset.i, 10)));
+  });
+
+  const hintBtn = document.getElementById("hintBtn");
+  const hintContent = document.getElementById("hintContent");
+  hintBtn.addEventListener("click", () => {
+    const isHidden = hintContent.hasAttribute("hidden");
+    if (isHidden){
+      hintContent.removeAttribute("hidden");
+      hintBtn.innerHTML = '<span class="bulb">💡</span> Ẩn gợi ý';
+    } else {
+      hintContent.setAttribute("hidden", "");
+      hintBtn.innerHTML = '<span class="bulb">💡</span> Xem gợi ý';
+    }
+  });
+
+  document.getElementById("nextBtn").addEventListener("click", next);
+
+  updateStats();
+  bar.style.width = (idx / quiz.length * 100) + "%";
+}
+
+/* =========================================================
+   CHỌN ĐÁP ÁN
+   ========================================================= */
+function choose(picked){
+  if (answered) return;
+  answered = true;
+
+  const q = quiz[idx];
+  const buttons = [...card.querySelectorAll(".option")];
+  const isRight = q.opts[picked].isCorrect;
+
+  buttons.forEach((btn, i) => {
+    btn.disabled = true;
+    if (q.opts[i].isCorrect)      btn.classList.add("correct");
+    else if (i === picked)        btn.classList.add("wrong");
+    else                          btn.classList.add("dim");
+  });
+
+  const fb = document.getElementById("feedback");
+  if (isRight){
+    correct++;
+    fb.className = "feedback ok show";
+    fb.textContent = "✅ Chính xác! Làm tốt lắm.";
+  } else {
+    wrong++;
+    const rightText = q.opts.find(o => o.isCorrect).text;
+    fb.className = "feedback bad show";
+    fb.textContent = "❌ Chưa đúng. Đáp án đúng là: " + rightText;
+  }
+
+  document.getElementById("nextBtn").hidden = false;
+  updateStats();
+  bar.style.width = ((correct + wrong) / quiz.length * 100) + "%";
+}
+
+/* =========================================================
+   CÂU TIẾP THEO
+   ========================================================= */
+function next(){
+  idx++;
+  if (idx >= quiz.length) renderResult();
+  else renderQuestion();
+}
+
+/* =========================================================
+   KẾT QUẢ
+   ========================================================= */
+function renderResult(){
+  const total = quiz.length;
+  const pct = Math.round(correct / total * 100);
+
+  let title, msg;
+  if (pct === 100){ title = "Hoàn hảo! 🏆"; msg = "Bạn trả lời đúng toàn bộ " + total + " câu. Quá xuất sắc!"; }
+  else if (pct >= 80){ title = "Rất tốt! 🎯"; msg = "Kiến thức của bạn rất vững, chỉ cần ôn thêm vài câu nữa."; }
+  else if (pct >= 60){ title = "Khá ổn! 👍"; msg = "Bạn đã nắm được phần lớn nội dung, hãy xem lại các câu sai nhé."; }
+  else if (pct >= 40){ title = "Cố gắng thêm! 💪"; msg = "Hãy ôn lại lý thuyết từng bài rồi làm lại bài kiểm tra."; }
+  else { title = "Đừng nản! 🌱"; msg = "Mọi thứ đều bắt đầu từ việc luyện tập. Thử lại lần nữa nhé!"; }
+
+  card.innerHTML = `
+    <div class="result">
+      <div class="ring" style="--p:${pct}">
+        <div class="ring-in"><b>${pct}%</b><small>CHÍNH XÁC</small></div>
+      </div>
+      <h2>${title}</h2>
+      <p>${msg}</p>
+      <div class="pills">
+        <span class="pill ok">✅ Đúng: ${correct}</span>
+        <span class="pill bad">❌ Sai: ${wrong}</span>
+        <span class="pill">📋 Tổng: ${total} câu</span>
+      </div>
+      <button class="btn" id="restartBtn">🔄 Làm lại từ đầu</button>
+    </div>
+  `;
+
+  sIndex.textContent = total + "/" + total;
+  bar.style.width = "100%";
+  document.getElementById("restartBtn").addEventListener("click", start);
+}
+
+/* =========================================================
+   CHẾ ĐỘ SÁNG / TỐI
+   ========================================================= */
+const themeBtn = document.getElementById("themeBtn");
+const root = document.documentElement;
+
+function applyTheme(mode){
+  root.setAttribute("data-theme", mode);
+  try { localStorage.setItem("quiz-theme", mode); } catch(e){}
+}
+
+(function initTheme(){
+  let saved = null;
+  try { saved = localStorage.getItem("quiz-theme"); } catch(e){}
+  if (saved) { applyTheme(saved); return; }
+  const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+  applyTheme(prefersDark ? "dark" : "light");
+})();
+
+themeBtn.addEventListener("click", () => {
+  applyTheme(root.getAttribute("data-theme") === "dark" ? "light" : "dark");
+});
+
+/* =========================================================
+   PHÍM TẮT
+   ========================================================= */
+document.addEventListener("keydown", e => {
+  if (idx >= quiz.length) return;
+  if (["1","2","3","4"].includes(e.key)){
+    const i = parseInt(e.key, 10) - 1;
+    const btn = card.querySelector(`.option[data-i="${i}"]`);
+    if (btn && !answered) btn.click();
+  }
+  if (e.key === "Enter"){
+    const nb = document.getElementById("nextBtn");
+    if (nb && !nb.hidden) nb.click();
+  }
+});
+
+/* =========================================================
+   BẮT ĐẦU
+   ========================================================= */
+start();
+</script>
+</body>
+</html>

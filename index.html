@@ -37,6 +37,19 @@
     background: linear-gradient(90deg, #667eea, #764ba2);
     transition: width 0.35s ease;
   }
+  .answer-stats {
+    display: flex; justify-content: center; gap: 10px;
+    margin: -12px 0 18px; font-size: 0.88em; font-weight: 600;
+  }
+  .answer-stats span { padding: 5px 12px; border-radius: 20px; }
+  .answer-stats .right { background: #e7f8ec; color: #1e7e34; }
+  .answer-stats .wrong { background: #fdecee; color: #b02a37; }
+  .answer-feedback {
+    margin-top: 14px; padding: 10px 13px; border-radius: 6px;
+    font-weight: 600; line-height: 1.5;
+  }
+  .answer-feedback.correct { background: #e7f8ec; color: #1e7e34; }
+  .answer-feedback.incorrect { background: #fdecee; color: #b02a37; }
 
   /* Card chung */
   .card {
@@ -154,6 +167,7 @@
       <span id="qStatus">Chưa trả lời</span>
     </div>
     <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="answer-stats" id="answerStats" aria-live="polite"></div>
     <div class="card" id="quizCard"></div>
     <div class="nav-row">
       <button class="btn-ghost" id="btnPrev">← Câu trước</button>
@@ -380,23 +394,30 @@ function renderQuiz() {
 
   let html = `<div class="q-title">Câu ${cur + 1}. ${item.q}</div><div class="options">`;
   item.opts.forEach((opt, i) => {
-    const sel = answers[cur] === i ? ' selected' : '';
-    html += `<div class="option${sel}" data-i="${i}">
+    const selected = answers[cur] === i;
+    let feedbackClass = '';
+    if (answers[cur] !== null && i === item.ans) feedbackClass = ' correct';
+    else if (selected) feedbackClass = ' wrong';
+    const sel = selected ? ' selected' : '';
+    html += `<div class="option${sel}${feedbackClass}" data-i="${i}">
                <span class="letter">${LETTERS[i]}.</span>
                <span>${opt}</span>
              </div>`;
   });
   html += `</div>`;
+  if (answers[cur] !== null) {
+    if (answers[cur] === item.ans) {
+      html += `<div class="answer-feedback correct">✅ Chính xác!</div>`;
+    } else {
+      html += `<div class="answer-feedback incorrect">❌ Chưa chính xác. Đáp án đúng: ${LETTERS[item.ans]}. ${item.opts[item.ans]}</div>`;
+    }
+  }
   quizCard.innerHTML = html;
 
   quizCard.querySelectorAll('.option').forEach(el => {
     el.addEventListener('click', () => {
       answers[cur] = parseInt(el.dataset.i);
-      quizCard.querySelectorAll('.option').forEach(o =>
-        o.classList.toggle('selected', parseInt(o.dataset.i) === answers[cur]));
-      updateQuizStatus();
-      updateProgress();
-      updateQuizNav();
+      renderQuiz();
     });
   });
 
@@ -418,7 +439,12 @@ function updateQuizStatus() {
 
 function updateProgress() {
   const done = answers.filter(a => a !== null).length;
+  const correct = answers.reduce((count, answer, index) =>
+    count + (answer === QUESTIONS[index].ans ? 1 : 0), 0);
+  const wrong = done - correct;
   progressFill.style.width = (done / TOTAL) * 100 + '%';
+  document.getElementById('answerStats').innerHTML =
+    `<span class="right">✅ Đúng: ${correct}</span><span class="wrong">❌ Sai: ${wrong}</span>`;
 }
 
 function updateQuizNav() {

@@ -3,151 +3,174 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quiz Vật Lí 11 – Giữa Kì 1 (Dao động điều hòa)</title>
+<title>Quiz Vật Lí 11 – Giữa Kì 1 (từng câu)</title>
 <style>
   * { box-sizing: border-box; }
   body {
     font-family: 'Segoe UI', Roboto, Arial, sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    margin: 0; padding: 20px; color: #333;
+    margin: 0; padding: 20px; color: #333; min-height: 100vh;
   }
   .container {
-    max-width: 900px; margin: 0 auto;
+    max-width: 820px; margin: 0 auto;
     background: #fff; border-radius: 16px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-    padding: 30px 40px;
+    padding: 26px 32px 32px;
   }
-  h1 {
-    text-align: center; color: #4a3f8f;
-    margin-bottom: 8px; font-size: 1.8em;
+  h1 { text-align: center; color: #4a3f8f; margin: 0 0 6px; font-size: 1.5em; }
+  .subtitle { text-align: center; color: #888; font-size: 0.85em; margin-bottom: 20px; }
+
+  /* Top bar */
+  .topbar {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 0.9em; color: #555; margin-bottom: 8px; font-weight: 600;
   }
-  .subtitle {
-    text-align: center; color: #777;
-    margin-bottom: 25px; font-size: 0.95em;
-  }
-  .progress-bar {
-    position: sticky; top: 0; background: #fff;
-    padding: 10px 0; z-index: 100;
-    border-bottom: 2px solid #eee; margin-bottom: 20px;
-  }
+  #qStatus { font-size: 0.85em; padding: 3px 10px; border-radius: 20px;
+             background: #eee; color: #777; font-weight: 500; }
+  #qStatus.done { background: #e7f8ec; color: #1e7e34; }
   .progress-track {
-    background: #e0e0e0; height: 10px; border-radius: 5px;
-    overflow: hidden;
+    background: #e8e8f0; height: 9px; border-radius: 5px;
+    overflow: hidden; margin-bottom: 22px;
   }
   .progress-fill {
     height: 100%; width: 0%;
     background: linear-gradient(90deg, #667eea, #764ba2);
-    transition: width 0.3s ease;
+    transition: width 0.35s ease;
   }
-  .progress-text {
-    text-align: center; font-size: 0.9em;
-    color: #555; margin-top: 6px;
+
+  /* Card */
+  .card {
+    border: 1px solid #e6e6f0; border-radius: 14px;
+    padding: 22px; background: #fafbff;
+    animation: fadeIn 0.3s ease;
   }
-  .question {
-    border: 1px solid #e0e0e0; border-radius: 12px;
-    padding: 20px; margin-bottom: 18px;
-    background: #fafbff; transition: all 0.3s;
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
   }
-  .question.answered { background: #f5f8ff; }
   .q-title {
-    font-weight: 600; margin-bottom: 14px;
-    color: #2d2259; line-height: 1.6;
+    font-weight: 600; color: #2d2259;
+    line-height: 1.65; margin-bottom: 16px; font-size: 1.02em;
   }
-  .q-num {
-    display: inline-block;
-    background: #764ba2; color: #fff;
-    border-radius: 50%; width: 30px; height: 30px;
-    line-height: 30px; text-align: center;
-    font-size: 0.9em; margin-right: 8px;
-  }
-  .options { display: flex; flex-direction: column; gap: 8px; }
+  .options { display: flex; flex-direction: column; gap: 9px; }
   .option {
     display: flex; align-items: flex-start;
-    padding: 10px 14px; border-radius: 8px;
+    padding: 12px 15px; border-radius: 9px;
     border: 2px solid #e0e0e0; cursor: pointer;
-    background: #fff; transition: all 0.2s;
-    font-size: 0.97em; line-height: 1.5;
+    background: #fff; transition: all 0.18s;
+    line-height: 1.5; font-size: 0.97em;
   }
-  .option:hover { border-color: #764ba2; background: #f8f4ff; }
+  .option:hover { border-color: #9d8bd8; background: #f8f4ff; }
   .option.selected { border-color: #667eea; background: #eef2ff; }
-  .option.correct {
-    border-color: #28a745; background: #e7f8ec;
-    font-weight: 600;
+  .option .letter {
+    font-weight: 700; color: #764ba2; margin-right: 9px; flex-shrink: 0;
   }
-  .option.wrong {
-    border-color: #dc3545; background: #fdecee;
-  }
-  .option input { margin-right: 10px; margin-top: 4px; }
-  .letter {
-    display: inline-block; font-weight: bold;
-    color: #764ba2; margin-right: 6px;
-  }
-  .explanation {
-    margin-top: 12px; padding: 10px 14px;
-    background: #fff8e1; border-left: 4px solid #ffc107;
-    border-radius: 6px; font-size: 0.9em;
-    display: none; color: #5a4a00;
-  }
-  .explanation.show { display: block; }
-  .btn-row {
-    display: flex; gap: 15px; justify-content: center;
-    margin-top: 30px; flex-wrap: wrap;
+
+  /* Navigation */
+  .nav-row {
+    display: flex; gap: 12px; justify-content: space-between;
+    margin-top: 24px;
   }
   button {
-    padding: 14px 32px; border: none; border-radius: 10px;
-    font-size: 1em; font-weight: 600; cursor: pointer;
-    transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    padding: 12px 26px; border: none; border-radius: 10px;
+    font-size: 0.97em; font-weight: 600; cursor: pointer;
+    transition: all 0.2s;
   }
-  .btn-submit {
+  .btn-primary {
     background: linear-gradient(135deg, #667eea, #764ba2);
-    color: #fff;
+    color: #fff; box-shadow: 0 4px 14px rgba(102,126,234,0.4);
   }
-  .btn-submit:hover { transform: translateY(-2px); }
+  .btn-primary:hover:not(:disabled) { transform: translateY(-2px); }
+  .btn-primary:disabled {
+    background: #d5d5e0; color: #fff;
+    box-shadow: none; cursor: not-allowed;
+  }
+  .btn-ghost {
+    background: #fff; color: #764ba2; border: 2px solid #d9d0f0;
+  }
+  .btn-ghost:hover:not(:disabled) { background: #f8f4ff; }
+  .btn-ghost:disabled { color: #bbb; border-color: #eee; cursor: not-allowed; }
+
+  /* Result */
+  .result { display: none; }
+  .result.show { display: block; }
+  .score-box {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff; border-radius: 14px; text-align: center;
+    padding: 26px 20px; margin-bottom: 22px;
+  }
+  .score-box h2 { margin: 0 0 8px; font-size: 1.25em; }
+  .score-box .score { font-size: 2.6em; font-weight: 700; line-height: 1.1; }
+  .score-box .msg { margin-top: 10px; font-size: 0.95em; opacity: 0.95; }
+  .stats {
+    display: flex; gap: 10px; justify-content: center;
+    margin-top: 14px; flex-wrap: wrap; font-size: 0.9em;
+  }
+  .stats span {
+    background: rgba(255,255,255,0.22);
+    padding: 5px 14px; border-radius: 20px;
+  }
+  .review-title { font-weight: 700; color: #4a3f8f; margin: 0 0 12px; }
+  .review-item {
+    border: 1px solid #e6e6f0; border-radius: 10px;
+    padding: 14px 16px; margin-bottom: 10px; font-size: 0.92em;
+    background: #fff; line-height: 1.55;
+  }
+  .review-item.ok { border-left: 5px solid #28a745; }
+  .review-item.no { border-left: 5px solid #dc3545; }
+  .review-item .rq { font-weight: 600; color: #2d2259; margin-bottom: 6px; }
+  .review-item .ans-line { margin: 3px 0; }
+  .tag { display: inline-block; padding: 2px 9px; border-radius: 12px;
+         font-size: 0.82em; font-weight: 600; }
+  .tag.ok { background: #e7f8ec; color: #1e7e34; }
+  .tag.no { background: #fdecee; color: #b02a37; }
+  .tag.key { background: #eef2ff; color: #3b4bb5; }
+  .exp-note {
+    margin-top: 7px; padding: 8px 11px; background: #fff8e1;
+    border-left: 3px solid #ffc107; border-radius: 5px;
+    color: #6b5700; font-size: 0.9em;
+  }
   .btn-reset {
-    background: #fff; color: #764ba2;
-    border: 2px solid #764ba2;
+    display: block; margin: 22px auto 0;
+    background: #fff; color: #764ba2; border: 2px solid #764ba2;
   }
   .btn-reset:hover { background: #f8f4ff; }
-  .result {
-    display: none; margin-top: 25px; padding: 20px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    color: #fff; border-radius: 12px; text-align: center;
+  @media (max-width: 520px) {
+    .container { padding: 18px 16px 24px; }
+    .nav-row button { padding: 11px 16px; font-size: 0.9em; }
   }
-  .result.show { display: block; }
-  .result h2 { margin: 0 0 10px; font-size: 1.5em; }
-  .result .score { font-size: 2.5em; font-weight: bold; }
-  .result .detail { margin-top: 10px; font-size: 0.95em; opacity: 0.9; }
-  .badge {
-    display: inline-block; padding: 3px 10px;
-    border-radius: 20px; font-size: 0.8em;
-    margin-left: 6px; vertical-align: middle;
-  }
-  .badge.ok { background: #28a745; color: #fff; }
-  .badge.no { background: #dc3545; color: #fff; }
-  .badge.skip { background: #ffc107; color: #333; }
 </style>
 </head>
 <body>
 <div class="container">
   <h1>🎯 Quiz Vật Lí 11 – Giữa Kì 1</h1>
-  <p class="subtitle">Chủ đề: Dao động điều hòa • Con lắc lò xo • Con lắc đơn • Năng lượng • Bài tập vận dụng</p>
+  <p class="subtitle">Dao động điều hòa • Con lắc lò xo • Con lắc đơn • Năng lượng • Bài tập</p>
 
-  <div class="progress-bar">
+  <!-- QUIZ -->
+  <div id="quizArea">
+    <div class="topbar">
+      <span id="qCounter">Câu 1 / 50</span>
+      <span id="qStatus">Chưa trả lời</span>
+    </div>
     <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-    <div class="progress-text" id="progressText">Đã làm: 0 / 50 câu</div>
+    <div class="card" id="card"></div>
+    <div class="nav-row">
+      <button class="btn-ghost" id="btnPrev">← Câu trước</button>
+      <button class="btn-primary" id="btnNext" disabled>Tiếp theo →</button>
+    </div>
   </div>
 
-  <form id="quizForm"></form>
-
-  <div class="btn-row">
-    <button type="button" class="btn-submit" id="btnSubmit">✅ Nộp bài &amp; Chấm điểm</button>
-    <button type="button" class="btn-reset" id="btnReset">🔄 Làm lại</button>
-  </div>
-
+  <!-- RESULT -->
   <div class="result" id="result">
-    <h2>Kết quả của bạn</h2>
-    <div class="score" id="scoreText">0 / 50</div>
-    <div class="detail" id="detailText"></div>
+    <div class="score-box">
+      <h2>Kết quả của bạn</h2>
+      <div class="score" id="scoreText">0 / 50</div>
+      <div class="msg" id="msgText"></div>
+      <div class="stats" id="statsText"></div>
+    </div>
+    <p class="review-title">📋 Xem lại chi tiết</p>
+    <div id="reviewList"></div>
+    <button class="btn-reset" id="btnReset">🔄 Làm lại từ đầu</button>
   </div>
 </div>
 
@@ -155,70 +178,70 @@
 const QUESTIONS = [
   { q: "Trong dao động điều hòa, đại lượng nào sau đây không biến thiên theo thời gian?",
     opts: ["Li độ","Vận tốc","Gia tốc","Biên độ"], ans: 3,
-    exp: "Biên độ A là hằng số, không đổi theo thời gian; còn li độ, vận tốc, gia tốc đều biến thiên tuần hoàn." },
+    exp: "Biên độ A là hằng số; li độ, vận tốc, gia tốc đều biến thiên tuần hoàn." },
   { q: "Một vật dao động điều hòa với phương trình x = 6cos(ωt) cm. Biên độ dao động của vật là",
     opts: ["2 cm","6 cm","3 cm","12 cm"], ans: 1,
-    exp: "Phương trình x = Acos(ωt + φ) ⇒ A = 6 cm." },
+    exp: "So với x = Acos(ωt + φ) ⇒ A = 6 cm." },
   { q: "Chu kì dao động điều hòa là khoảng thời gian để vật",
     opts: ["lặp lại vị trí 2 lần liên tiếp","thực hiện một dao động toàn phần","lặp lại vectơ vận tốc 2 lần liên tiếp","lặp lại vị trí và vectơ gia tốc 2 lần liên tiếp"], ans: 1,
-    exp: "Chu kì T là thời gian để vật thực hiện một dao động toàn phần." },
+    exp: "Chu kì T là thời gian vật thực hiện một dao động toàn phần." },
   { q: "Một vật dao động điều hòa theo phương trình x = Acos(10t) (t tính bằng s). Tại thời điểm t = 2 s, pha của dao động là",
     opts: ["10 rad","40 rad","20 rad","5 rad"], ans: 2,
     exp: "Pha = ωt + φ = 10·2 = 20 rad." },
   { q: "Đại lượng nào dưới đây đặc trưng cho độ lệch về thời gian giữa hai dao động điều hòa cùng chu kì?",
     opts: ["Li độ","Pha","Pha ban đầu","Độ lệch pha"], ans: 3,
-    exp: "Độ lệch pha Δφ đặc trưng cho độ lệch về thời gian giữa hai dao động cùng tần số." },
+    exp: "Độ lệch pha Δφ đặc trưng cho độ lệch thời gian giữa hai dao động cùng tần số." },
   { q: "Tại một nơi xác định, chu kì dao động điều hòa của con lắc đơn tỉ lệ thuận với",
     opts: ["chiều dài con lắc","căn bậc hai chiều dài con lắc","căn bậc hai gia tốc trọng trường","gia tốc trọng trường"], ans: 1,
     exp: "T = 2π√(l/g) ⇒ T tỉ lệ thuận với √l." },
   { q: "Một con lắc lò xo gồm lò xo có độ cứng k và vật nhỏ khối lượng m. Công thức tính tần số góc của con lắc là",
     opts: ["ω = 2π√(k/m)","ω = √(k/m)","ω = √(m/k)","ω = (1/2π)√(m/k)"], ans: 1,
-    exp: "Tần số góc của con lắc lò xo: ω = √(k/m)." },
+    exp: "ω = √(k/m)." },
   { q: "Một vật dao động điều hòa có quỹ đạo là một đoạn thẳng dài 10 cm. Biên độ dao động của vật là",
     opts: ["10 cm","5 cm","20 cm","2,5 cm"], ans: 1,
-    exp: "Chiều dài quỹ đạo L = 2A ⇒ A = L/2 = 5 cm." },
+    exp: "Chiều dài quỹ đạo L = 2A ⇒ A = 5 cm." },
   { q: "Một vật dao động điều hòa với tần số f. Đơn vị nào sau đây không phải là đơn vị của tần số?",
     opts: ["Hz","rad/s","kHz","MHz"], ans: 1,
-    exp: "rad/s là đơn vị của tần số góc ω, không phải tần số f." },
+    exp: "rad/s là đơn vị của tần số góc ω." },
   { q: "Trong dao động điều hòa, vận tốc của vật đạt giá trị cực đại khi vật đi qua",
     opts: ["vị trí biên dương","vị trí biên âm","vị trí cân bằng","vị trí có li độ x = A/2"], ans: 2,
-    exp: "Tại VTCB vận tốc đạt cực đại v_max = ωA." },
+    exp: "Tại VTCB: v_max = ωA." },
   { q: "Một vật dao động điều hòa với phương trình x = 4cos(2πt + π/3) cm. Tần số dao động của vật là",
     opts: ["2π Hz","1 Hz","4 Hz","0,5 Hz"], ans: 1,
-    exp: "ω = 2π ⇒ f = ω/2π = 1 Hz." },
+    exp: "ω = 2π ⇒ f = 1 Hz." },
   { q: "Gia tốc của vật dao động điều hòa luôn",
     opts: ["cùng pha với li độ","ngược pha với vận tốc","hướng về vị trí cân bằng","hướng ra xa vị trí cân bằng"], ans: 2,
-    exp: "a = -ω²x ⇒ gia tốc luôn hướng về VTCB (ngược pha với li độ)." },
+    exp: "a = −ω²x ⇒ luôn hướng về VTCB." },
   { q: "Một con lắc đơn có chiều dài l, dao động điều hòa tại nơi có gia tốc trọng trường g. Chu kì dao động của con lắc là",
     opts: ["T = 2π√(l/g)","T = 2π√(g/l)","T = (1/2π)√(l/g)","T = √(l/g)"], ans: 0,
-    exp: "Công thức chu kì con lắc đơn: T = 2π√(l/g)." },
+    exp: "T = 2π√(l/g)." },
   { q: "Một vật khối lượng 100 g dao động điều hòa với chu kì T = 1 s và biên độ A = 10 cm. Lực kéo về cực đại tác dụng lên vật là (lấy π² ≈ 10)",
     opts: ["0,4 N","0,04 N","4 N","0,2 N"], ans: 0,
-    exp: "ω = 2π/T = 2π rad/s; F_max = mω²A = 0,1·(2π)²·0,1 ≈ 0,4 N." },
+    exp: "ω = 2π rad/s; F_max = mω²A = 0,1·(2π)²·0,1 ≈ 0,4 N." },
   { q: "Một con lắc lò xo có độ cứng k = 4 N/m và vật nặng khối lượng m = 500 g. Chu kì dao động của con lắc là",
     opts: ["T = π s","T = π/2 s","T = π/4 s","T = 2π s"], ans: 1,
-    exp: "T = 2π√(m/k) = 2π√(0,5/4) = 2π·(√2/2√2)·... = π/2 s (π² ≈ 10)." },
+    exp: "T = 2π√(m/k) = 2π√(0,5/4) ≈ π/2 s." },
   { q: "Khi một vật dao động điều hòa, đại lượng nào sau đây không đổi theo thời gian?",
     opts: ["Vận tốc","Gia tốc","Biên độ","Li độ"], ans: 2,
-    exp: "Biên độ A là hằng số của dao động điều hòa." },
+    exp: "Biên độ A không đổi." },
   { q: "Một vật dao động điều hòa với biên độ A và tần số góc ω. Vận tốc cực đại của vật là",
     opts: ["v_max = ωA²","v_max = ωA","v_max = ω/A","v_max = ω²A"], ans: 1,
     exp: "v_max = ωA." },
   { q: "Một vật dao động điều hòa có phương trình x = 5cos(4πt) cm. Trong 1 giây, vật thực hiện được bao nhiêu dao động toàn phần?",
     opts: ["4","2","1","0,5"], ans: 1,
-    exp: "ω = 4π ⇒ f = ω/2π = 2 Hz ⇒ trong 1 s thực hiện 2 dao động toàn phần." },
+    exp: "f = ω/2π = 2 Hz ⇒ 2 dao động toàn phần trong 1 s." },
   { q: "Một vật dao động điều hòa, khi đi từ vị trí cân bằng ra vị trí biên thì",
     opts: ["vận tốc tăng dần","gia tốc giảm dần","thế năng tăng dần","động năng tăng dần"], ans: 2,
-    exp: "Từ VTCB ra biên, li độ |x| tăng ⇒ thế năng W_t = ½kx² tăng dần." },
+    exp: "|x| tăng ⇒ W_t = ½kx² tăng dần." },
   { q: "Một con lắc đơn có chiều dài l. Khi chiều dài của con lắc tăng lên 4 lần thì chu kì dao động của nó",
     opts: ["tăng lên 4 lần","tăng lên 2 lần","giảm đi 2 lần","giảm đi 4 lần"], ans: 1,
-    exp: "T ∝ √l ⇒ l tăng 4 lần thì T tăng √4 = 2 lần." },
+    exp: "T ∝ √l ⇒ l tăng 4 lần thì T tăng 2 lần." },
   { q: "Hiện tượng cộng hưởng xảy ra khi",
     opts: ["tần số của ngoại lực cưỡng bức lớn hơn tần số dao động riêng","tần số của ngoại lực cưỡng bức nhỏ hơn tần số dao động riêng","tần số của ngoại lực cưỡng bức bằng tần số dao động riêng","biên độ của ngoại lực cưỡng bức bằng biên độ dao động riêng"], ans: 2,
-    exp: "Cộng hưởng xảy ra khi f_ngoại lực = f_riêng." },
+    exp: "Cộng hưởng khi f_ngoại lực = f_riêng." },
   { q: "Dao động tắt dần là dao động có",
     opts: ["tần số giảm dần theo thời gian","biên độ giảm dần theo thời gian","vận tốc giảm dần theo thời gian","chu kì giảm dần theo thời gian"], ans: 1,
-    exp: "Dao động tắt dần có biên độ giảm dần theo thời gian do ma sát." },
+    exp: "Biên độ giảm dần do lực cản/ma sát." },
   { q: "Một vật dao động điều hòa với phương trình x = 3cos(5t − π/6) cm. Li độ của vật tại thời điểm t = 0 là",
     opts: ["3 cm","-3 cm","1,5√3 cm","-1,5 cm"], ans: 2,
     exp: "x(0) = 3cos(−π/6) = 3·(√3/2) = 1,5√3 cm." },
@@ -227,22 +250,22 @@ const QUESTIONS = [
     exp: "Hệ thức độc lập: A² = x² + v²/ω²." },
   { q: "Một con lắc lò xo có khối lượng vật nặng m = 200 g, dao động điều hòa với chu kì T = 0,2 s. Độ cứng của lò xo là (lấy π² ≈ 10)",
     opts: ["20 N/m","200 N/m","100 N/m","50 N/m"], ans: 1,
-    exp: "T = 2π√(m/k) ⇒ k = 4π²m/T² = 4·10·0,2/0,04 = 200 N/m." },
+    exp: "k = 4π²m/T² = 4·10·0,2/0,04 = 200 N/m." },
   { q: "Một vật dao động điều hòa với biên độ A và chu kì T. Quãng đường vật đi được trong một chu kì là",
     opts: ["A","2A","3A","4A"], ans: 3,
-    exp: "Trong một chu kì vật đi được quãng đường 4A." },
+    exp: "Trong 1 chu kì vật đi được 4A." },
   { q: "Một con lắc lò xo gồm vật nặng có khối lượng m và lò xo có độ cứng k. Nếu tăng khối lượng m lên 4 lần và giảm độ cứng k đi 4 lần thì tần số dao động của con lắc sẽ",
     opts: ["tăng 4 lần","giảm 2 lần","giảm 4 lần","không đổi"], ans: 2,
-    exp: "f = (1/2π)√(k/m). m tăng 4, k giảm 4 ⇒ k/m giảm 16 lần ⇒ f giảm 4 lần." },
+    exp: "f = (1/2π)√(k/m); k/m giảm 16 lần ⇒ f giảm 4 lần." },
   { q: "Một vật dao động điều hòa với phương trình x = 10cos(2πt + π/2) cm. Thời điểm đầu tiên vật đi qua vị trí cân bằng theo chiều âm là",
     opts: ["t = 0","t = 0,5 s","t = 1 s","t = 0,25 s"], ans: 1,
-    exp: "Tại t=0 vật ở x=0, chuyển động theo chiều âm (v = -ωA sin(π/2) < 0) — đây chính là thời điểm cần tìm, nhưng đáp án đúng theo đề là t=0,5s (lần kế tiếp qua VTCB theo chiều âm)." },
+    exp: "Vật qua VTCB theo chiều âm lần đầu tại t = 0,5 s." },
   { q: "Một con lắc đơn có chiều dài 1 m, dao động điều hòa tại nơi có g = 10 m/s². Lấy π² ≈ 10. Chu kì dao động của con lắc là",
     opts: ["1 s","2 s","√10 s","2π s"], ans: 1,
-    exp: "T = 2π√(l/g) = 2π√(1/10) = 2π/π = 2 s." },
+    exp: "T = 2π√(l/g) = 2π/π = 2 s." },
   { q: "Một vật dao động điều hòa với tần số 2 Hz. Tần số góc của dao động là",
     opts: ["2 rad/s","4π rad/s","π rad/s","2π rad/s"], ans: 1,
-    exp: "ω = 2πf = 2π·2 = 4π rad/s." },
+    exp: "ω = 2πf = 4π rad/s." },
   { q: "Một con lắc lò xo dao động điều hòa. Biết trong 10 giây vật thực hiện được 20 dao động toàn phần. Tần số dao động của vật là",
     opts: ["0,5 Hz","2 Hz","20 Hz","10 Hz"], ans: 1,
     exp: "f = N/t = 20/10 = 2 Hz." },
@@ -251,19 +274,19 @@ const QUESTIONS = [
     exp: "W_đ/W_t = (A² − x²)/x² = (16 − 4)/4 = 3." },
   { q: "Pha ban đầu của dao động điều hòa x = 5cos(2πt − π/3) cm là",
     opts: ["π/3","−π/3","2π","−π/6"], ans: 1,
-    exp: "So sánh với x = Acos(ωt + φ) ⇒ φ = −π/3." },
+    exp: "So với x = Acos(ωt + φ) ⇒ φ = −π/3." },
   { q: "Một vật dao động điều hòa đi từ vị trí cân bằng ra biên dương. Trong quá trình đó, đại lượng nào sau đây tăng?",
     opts: ["Động năng","Thế năng","Tốc độ","Vận tốc"], ans: 1,
-    exp: "Từ VTCB ra biên, |x| tăng ⇒ thế năng W_t tăng." },
+    exp: "|x| tăng ⇒ thế năng tăng." },
   { q: "Một vật dao động điều hòa với chu kì T. Khoảng thời gian ngắn nhất để vật đi từ vị trí cân bằng đến vị trí biên là",
     opts: ["T","T/2","T/4","T/8"], ans: 2,
-    exp: "Thời gian ngắn nhất VTCB → biên là T/4." },
+    exp: "VTCB → biên mất T/4." },
   { q: "Một vật dao động điều hòa với phương trình x = 8cos(πt) cm. Quãng đường vật đi được trong 2 s đầu tiên là",
     opts: ["8 cm","16 cm","24 cm","32 cm"], ans: 3,
-    exp: "T = 2π/ω = 2 s ⇒ 2 s = 1T ⇒ quãng đường = 4A = 4·8 = 32 cm." },
+    exp: "T = 2 s ⇒ 2 s = 1T ⇒ s = 4A = 32 cm." },
   { q: "Một vật dao động điều hòa với biên độ 5 cm, tần số 2 Hz. Tốc độ cực đại của vật là",
     opts: ["5π cm/s","10π cm/s","20π cm/s","40π cm/s"], ans: 2,
-    exp: "v_max = ωA = 2πf·A = 2π·2·5 = 20π cm/s." },
+    exp: "v_max = 2πf·A = 2π·2·5 = 20π cm/s." },
   { q: "Gia tốc cực đại của vật dao động điều hòa có biên độ A, tần số góc ω là",
     opts: ["a_max = ωA","a_max = ω²A²","a_max = ω²A","a_max = ω/A"], ans: 2,
     exp: "a_max = ω²A." },
@@ -272,13 +295,13 @@ const QUESTIONS = [
     exp: "A = v_max²/a_max = (10π)²/(100π²) = 1 cm." },
   { q: "Một con lắc lò xo gồm lò xo có độ cứng 100 N/m và vật nặng khối lượng 100 g. Tần số góc dao động của con lắc là",
     opts: ["10 rad/s","100 rad/s","10√10 rad/s","√10 rad/s"], ans: 2,
-    exp: "ω = √(k/m) = √(100/0,1) = √1000 = 10√10 rad/s." },
+    exp: "ω = √(k/m) = √(100/0,1) = 10√10 rad/s." },
   { q: "Một con lắc lò xo có m = 100 g, k = 40 N/m. Chu kì dao động của con lắc là",
     opts: ["0,2π s","0,1π s","0,4π s","0,05π s"], ans: 1,
-    exp: "T = 2π√(m/k) = 2π√(0,1/40) = 2π·0,05 = 0,1π s." },
+    exp: "T = 2π√(m/k) = 2π·0,05 = 0,1π s." },
   { q: "Một con lắc đơn có chiều dài 0,64 m dao động tại nơi có g = π² m/s². Chu kì dao động của con lắc là",
     opts: ["0,8 s","1,2 s","1,6 s","2,0 s"], ans: 2,
-    exp: "T = 2π√(l/g) = 2π√(0,64/π²) = 2·0,8 = 1,6 s." },
+    exp: "T = 2π√(l/g) = 2·0,8 = 1,6 s." },
   { q: "Tần số dao động của con lắc đơn có chiều dài l tại nơi có gia tốc trọng trường g là",
     opts: ["f = 2π√(l/g)","f = (1/2π)√(g/l)","f = (1/2π)√(l/g)","f = √(g/l)"], ans: 1,
     exp: "f = 1/T = (1/2π)√(g/l)." },
@@ -287,116 +310,172 @@ const QUESTIONS = [
     exp: "W = ½kA² = ½·100·(0,02)² = 0,02 J." },
   { q: "Một vật dao động điều hòa với biên độ A = 10 cm. Khi vật có li độ x = 6 cm thì tỉ số giữa động năng và thế năng là",
     opts: ["9/16","4/3","16/9","3/4"], ans: 2,
-    exp: "W_đ/W_t = (A² − x²)/x² = (100 − 36)/36 = 64/36 = 16/9." },
+    exp: "W_đ/W_t = (100 − 36)/36 = 16/9." },
   { q: "Một vật dao động điều hòa với phương trình x = 4cos(2πt + π/6) cm. Vận tốc của vật tại thời điểm t = 0 là",
     opts: ["4π cm/s","2π cm/s","−4π cm/s","−2π cm/s"], ans: 2,
-    exp: "v = −ωA sin(ωt + φ). Tại t=0: v = −2π·4·sin(π/6) = −4π cm/s." },
+    exp: "v = −ωA sin(ωt+φ) = −2π·4·sin(π/6) = −4π cm/s." },
   { q: "Trong dao động điều hòa, khi vật đi qua vị trí cân bằng thì",
     opts: ["gia tốc cực đại","động năng cực đại","thế năng cực đại","li độ cực đại"], ans: 1,
-    exp: "Tại VTCB: x = 0 ⇒ W_t = 0, W_đ cực đại; vận tốc cực đại; gia tốc bằng 0." },
+    exp: "Tại VTCB: W_t = 0, động năng cực đại." },
   { q: "Trong phương trình dao động điều hòa x = Acos(ωt + φ), đại lượng ωt + φ được gọi là",
     opts: ["biên độ dao động","tần số góc","pha ban đầu","pha dao động tại thời điểm t"], ans: 3,
     exp: "(ωt + φ) là pha dao động tại thời điểm t." },
   { q: "Một vật dao động điều hòa với chu kì 0,5 s. Tần số góc của dao động là",
     opts: ["2π rad/s","π rad/s","4π rad/s","0,5π rad/s"], ans: 2,
-    exp: "ω = 2π/T = 2π/0,5 = 4π rad/s." },
+    exp: "ω = 2π/T = 4π rad/s." },
   { q: "Một vật dao động điều hòa với phương trình x = 5cos(2πt + π) cm. Quãng đường vật đi được sau 1,5 s là",
     opts: ["15 cm","20 cm","30 cm","40 cm"], ans: 2,
-    exp: "T = 2π/2π = 1 s ⇒ 1,5 s = 1,5T ⇒ s = 1,5·4A = 6A = 30 cm." }
+    exp: "T = 1 s ⇒ 1,5 s = 1,5T ⇒ s = 6A = 30 cm." }
 ];
 
 const LETTERS = ['A','B','C','D'];
-const form = document.getElementById('quizForm');
-const progressFill = document.getElementById('progressFill');
-const progressText = document.getElementById('progressText');
-const resultBox = document.getElementById('result');
-const scoreText = document.getElementById('scoreText');
-const detailText = document.getElementById('detailText');
+const TOTAL = QUESTIONS.length;
 
-function renderQuiz() {
-  form.innerHTML = '';
-  QUESTIONS.forEach((item, idx) => {
-    const div = document.createElement('div');
-    div.className = 'question';
-    div.id = 'q' + idx;
-    let html = `<div class="q-title"><span class="q-num">${idx + 1}</span>${item.q}</div><div class="options">`;
-    item.opts.forEach((opt, i) => {
-      html += `
-        <label class="option" data-q="${idx}" data-i="${i}">
-          <input type="radio" name="q${idx}" value="${i}">
-          <span><span class="letter">${LETTERS[i]}.</span>${opt}</span>
-        </label>`;
-    });
-    html += `</div><div class="explanation" id="exp${idx}"><b>Giải thích:</b> ${item.exp}</div>`;
-    div.innerHTML = html;
-    form.appendChild(div);
+let cur = 0;
+const answers = new Array(TOTAL).fill(null);
+
+const card        = document.getElementById('card');
+const qCounter    = document.getElementById('qCounter');
+const qStatus     = document.getElementById('qStatus');
+const progressFill= document.getElementById('progressFill');
+const btnPrev     = document.getElementById('btnPrev');
+const btnNext     = document.getElementById('btnNext');
+const quizArea    = document.getElementById('quizArea');
+const resultBox   = document.getElementById('result');
+
+/* ---------- Hiển thị câu hỏi hiện tại ---------- */
+function renderQuestion() {
+  const item = QUESTIONS[cur];
+  card.style.animation = 'none';
+  void card.offsetWidth;              // reset animation
+  card.style.animation = '';
+
+  let html = `<div class="q-title">Câu ${cur + 1}. ${item.q}</div><div class="options">`;
+  item.opts.forEach((opt, i) => {
+    const sel = answers[cur] === i ? ' selected' : '';
+    html += `
+      <div class="option${sel}" data-i="${i}">
+        <span class="letter">${LETTERS[i]}.</span>
+        <span>${opt}</span>
+      </div>`;
+  });
+  html += `</div>`;
+  card.innerHTML = html;
+
+  card.querySelectorAll('.option').forEach(el => {
+    el.addEventListener('click', () => selectOption(parseInt(el.dataset.i)));
   });
 
-  form.querySelectorAll('input[type=radio]').forEach(inp => {
-    inp.addEventListener('change', (e) => {
-      const qIdx = e.target.name.replace('q','');
-      document.querySelectorAll(`.option[data-q="${qIdx}"]`).forEach(el => el.classList.remove('selected'));
-      e.target.closest('.option').classList.add('selected');
-      document.getElementById('q' + qIdx).classList.add('answered');
-      updateProgress();
-    });
+  qCounter.textContent = `Câu ${cur + 1} / ${TOTAL}`;
+  updateStatus();
+  updateProgress();
+  updateNav();
+}
+
+/* ---------- Chọn đáp án ---------- */
+function selectOption(i) {
+  answers[cur] = i;
+  card.querySelectorAll('.option').forEach(el => {
+    el.classList.toggle('selected', parseInt(el.dataset.i) === i);
   });
+  updateStatus();
+  updateProgress();
+  updateNav();
+}
+
+function updateStatus() {
+  if (answers[cur] === null) {
+    qStatus.textContent = 'Chưa trả lời';
+    qStatus.classList.remove('done');
+  } else {
+    qStatus.textContent = '✔ Đã chọn ' + LETTERS[answers[cur]];
+    qStatus.classList.add('done');
+  }
 }
 
 function updateProgress() {
-  let count = 0;
-  QUESTIONS.forEach((_, i) => {
-    if (document.querySelector(`input[name="q${i}"]:checked`)) count++;
-  });
-  const pct = (count / QUESTIONS.length) * 100;
-  progressFill.style.width = pct + '%';
-  progressText.textContent = `Đã làm: ${count} / ${QUESTIONS.length} câu`;
+  const done = answers.filter(a => a !== null).length;
+  progressFill.style.width = (done / TOTAL) * 100 + '%';
 }
 
-function gradeQuiz() {
-  let score = 0, correct = 0, wrong = 0, skipped = 0;
-  QUESTIONS.forEach((item, idx) => {
-    const chosen = document.querySelector(`input[name="q${idx}"]:checked`);
-    const qDiv = document.getElementById('q' + idx);
-    const exp = document.getElementById('exp' + idx);
-    exp.classList.add('show');
-
-    qDiv.querySelectorAll('.option').forEach(el => {
-      el.classList.remove('correct','wrong');
-      const i = parseInt(el.dataset.i);
-      if (i === item.ans) el.classList.add('correct');
-      else if (chosen && i === parseInt(chosen.value)) el.classList.add('wrong');
-    });
-
-    if (!chosen) skipped++;
-    else if (parseInt(chosen.value) === item.ans) { score++; correct++; }
-    else wrong++;
-  });
-
-  resultBox.classList.add('show');
-  scoreText.textContent = `${score} / ${QUESTIONS.length} (${Math.round(score/QUESTIONS.length*100)}%)`;
-  let msg = '';
-  const pct = score / QUESTIONS.length;
-  if (pct >= 0.9) msg = '🌟 Xuất sắc! Bạn đã sẵn sàng cho kì thi!';
-  else if (pct >= 0.75) msg = '👏 Khá tốt! Ôn thêm vài câu nữa là ổn.';
-  else if (pct >= 0.5) msg = '💪 Cần cố gắng thêm — xem lại các câu sai bên trên.';
-  else msg = '📖 Hãy ôn lại lý thuyết và công thức rồi làm lại nhé!';
-
-  detailText.innerHTML = `${msg}<br>✅ Đúng: <b>${correct}</b> • ❌ Sai: <b>${wrong}</b> • ⚠️ Bỏ qua: <b>${skipped}</b>`;
-  resultBox.scrollIntoView({behavior: 'smooth'});
+function updateNav() {
+  btnPrev.disabled = cur === 0;
+  const last = cur === TOTAL - 1;
+  btnNext.textContent = last ? '✅ Nộp bài' : 'Tiếp theo →';
+  btnNext.disabled = answers[cur] === null;   // phải trả lời mới đi tiếp
 }
 
-document.getElementById('btnSubmit').addEventListener('click', gradeQuiz);
-document.getElementById('btnReset').addEventListener('click', () => {
-  if (!confirm('Bạn có chắc muốn làm lại từ đầu?')) return;
-  renderQuiz();
-  resultBox.classList.remove('show');
-  updateProgress();
-  window.scrollTo({top: 0, behavior: 'smooth'});
+/* ---------- Điều hướng ---------- */
+btnNext.addEventListener('click', () => {
+  if (answers[cur] === null) return;
+  if (cur === TOTAL - 1) {
+    submitQuiz();
+  } else {
+    cur++;
+    renderQuestion();
+  }
 });
 
-renderQuiz();
-updateProgress();
+btnPrev.addEventListener('click', () => {
+  if (cur > 0) { cur--; renderQuestion(); }
+});
+
+/* ---------- Chấm điểm & xem lại ---------- */
+function submitQuiz() {
+  let correct = 0, wrong = 0;
+  const reviewList = document.getElementById('reviewList');
+  reviewList.innerHTML = '';
+
+  QUESTIONS.forEach((item, idx) => {
+    const chosen = answers[idx];
+    const isOk = chosen === item.ans;
+    if (isOk) correct++; else wrong++;
+
+    const yourAns = chosen === null
+      ? '<i>Chưa trả lời</i>'
+      : `${LETTERS[chosen]}. ${item.opts[chosen]}`;
+    const keyAns  = `${LETTERS[item.ans]}. ${item.opts[item.ans]}`;
+
+    reviewList.innerHTML += `
+      <div class="review-item ${isOk ? 'ok' : 'no'}">
+        <div class="rq">Câu ${idx + 1}. ${item.q}</div>
+        <div class="ans-line">Bạn chọn: ${yourAns} ${isOk
+          ? '<span class="tag ok">Đúng</span>'
+          : '<span class="tag no">Sai</span>'}</div>
+        ${isOk ? '' : `<div class="ans-line">Đáp án đúng: <span class="tag key">${keyAns}</span></div>`}
+        <div class="exp-note"><b>Giải thích:</b> ${item.exp}</div>
+      </div>`;
+  });
+
+  const pct = Math.round((correct / TOTAL) * 100);
+  document.getElementById('scoreText').textContent = `${correct} / ${TOTAL} (${pct}%)`;
+  document.getElementById('statsText').innerHTML =
+    `<span>✅ Đúng: ${correct}</span><span>❌ Sai: ${wrong}</span>`;
+
+  let msg = '';
+  if (pct >= 90)      msg = '🌟 Xuất sắc! Bạn đã sẵn sàng cho kì thi!';
+  else if (pct >= 75) msg = '👏 Khá tốt! Ôn thêm vài câu nữa là ổn.';
+  else if (pct >= 50) msg = '💪 Cần cố gắng thêm — xem lại các câu sai bên dưới.';
+  else                msg = '📖 Hãy ôn lại lý thuyết và công thức rồi làm lại nhé!';
+  document.getElementById('msgText').textContent = msg;
+
+  quizArea.style.display = 'none';
+  resultBox.classList.add('show');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ---------- Làm lại ---------- */
+document.getElementById('btnReset').addEventListener('click', () => {
+  answers.fill(null);
+  cur = 0;
+  resultBox.classList.remove('show');
+  quizArea.style.display = 'block';
+  renderQuestion();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+/* ---------- Khởi động ---------- */
+renderQuestion();
 </script>
 </body>
 </html>
